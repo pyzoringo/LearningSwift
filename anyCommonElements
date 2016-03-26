@@ -1,0 +1,25 @@
+//The SwiftProgramming Language (Swift 2.2 Edition) Page35  
+func anyCommonElements <T: SequenceType, U:SequenceType
+where T.Generator.Element: Equatable,
+T.Generator.Element == U.Generator.Element> (lhs:
+T, _ rhs: U) -> Bool {
+    var sameElement = [String]()
+    var flag = 0
+    for lhsItem in lhs {
+        for rhsItem in rhs {
+            if lhsItem == rhsItem {
+                var bufferToArray = lhsItem
+                var bufferToArrayS = String(lhsItem)
+                sameElement.append(bufferToArrayS)
+//              print(sameElement)
+                flag = 1
+            }
+        }
+    }
+    if flag == 1 {
+        print(sameElement)
+        return true
+    }
+    return false
+}
+print(anyCommonElements([1,2,3], [1,3]))
