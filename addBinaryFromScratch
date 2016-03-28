@@ -1,0 +1,60 @@
+func addBinary(a: String, b: String) -> String {
+    func pow(num: Int, power: Int) -> Int {
+        var ans = 1
+        for i in 0...power {
+            if i == 0 {
+                ans = ans * 1
+            } else {
+                ans = ans * num
+            }
+        }
+        return ans
+    }
+
+    func binaryToDecimal(c: String) -> Int {
+         var cDecimal = 0
+         var buffer = 0
+         let cBinary = Int(c)!
+         for i in 1...c.characters.count {
+            let oneBool = cBinary%pow(10,power:i)/pow(10,power:(i-1))
+            if oneBool == 1 {
+                if i > 1 {
+                     buffer = pow(2,power:(i-1))
+                    cDecimal += buffer
+                 } else {
+                     buffer = 1
+                     cDecimal += buffer
+                 }
+            }
+         }
+        return cDecimal
+    }
+    func d2b(x: Int) -> String {
+        var cal = x
+        var result: String = " "
+        if x == 1 {
+            result = "1"
+        } else {
+            while cal/2 != 1 {
+                let calLeft = cal%2
+                cal = cal/2
+                result += String(calLeft)
+            }
+            if cal%2 == 0 {
+                result += ("01")
+            } else {
+              result += ("11")
+            }
+        }
+        let finalResult = String(result.characters.reverse())
+        return finalResult
+    }
+    let aInDecimal = binaryToDecimal(a)
+    let bInDecimal = binaryToDecimal(b)
+    let result = aInDecimal + bInDecimal
+    let finalResult = d2b(result)
+    print(finalResult)
+    return finalResult
+}
+
+addBinary("11",b:"1")
