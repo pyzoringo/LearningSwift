@@ -31,7 +31,7 @@ func addBinary(a: String, b: String) -> String {
     }
     func d2b(x: Int) -> String {
         var cal = x
-        var result: String = " "
+        var result: String = ""
         if x == 1 {
             result = "1"
         } else {
