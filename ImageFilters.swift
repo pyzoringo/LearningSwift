@@ -1,4 +1,3 @@
-//: Playground - noun: a place where people can play
 
 import UIKit
 
@@ -46,35 +45,32 @@ var pixel = assignmentImage.pixels[1]
 
 
 class ImageProcessor {
-    let filename: String
-    init(filename: String) {
-        self.filename = filename
+    var targetUIImage: UIImage
+    init(targetUIImage: UIImage) {
+        self.targetUIImage = targetUIImage
     }
-    var targetImage: RGBAImage {
-        return RGBAImage(image: UIImage(named: filename)!)!
+    convenience init(){
+        self.init(targetUIImage: image)
+    }
+    var targetRGBAImage: RGBAImage {
+        return RGBAImage(image: targetUIImage)!
     }
     var height: Int {
-        return targetImage.height
+        return targetRGBAImage.height
     }
     var width: Int {
-        return targetImage.width
+        return targetRGBAImage.width
     }
 }
 
-
-class ColorMap: ImageProcessor {
-    let color: String
-    init(filename: String, color: String) {
-        self.color = color
-        super.init(filename: filename)
-    }
-    func printMap() -> [UInt8] {
+extension ImageProcessor {
+    func printMap(color: String) -> [UInt8] {
         var map = [UInt8](count: width*height, repeatedValue: 0)
         for y in 0..<height {
             for x in 0..<width {
                 let index = y*width+x
-                let pixel = targetImage.pixels[index]
-                switch self.color {
+                let pixel = targetRGBAImage.pixels[index]
+                switch color {
                 case "red":
                     map[index] = pixel.red
                 case "green":
@@ -88,16 +84,23 @@ class ColorMap: ImageProcessor {
         }
         return map
     }
+    var redMap: [UInt8] {
+        return printMap("red")
+    }
+    var greenMap: [UInt8] {
+        return printMap("green")
+    }
+    var blueMap: [UInt8] {
+        return printMap("blue")
+    }
 }
 
-
-
-class Filters: ImageProcessor {
-    func contrastFilter(strengthFrom0To10 strength: Double) -> UIImage {
-        let redMap = ColorMap(filename: filename, color: "red").printMap()
-        let greenMap = ColorMap(filename: filename, color: "green").printMap()
-        let blueMap = ColorMap(filename: filename, color: "blue").printMap()
-        let contrastRGBAImage = targetImage
+extension ImageProcessor {
+    func contrastFilter(strengthFrom0To10 strength: Double) -> ImageProcessor {
+        let redMap = self.redMap
+        let greenMap = self.greenMap
+        let blueMap = self.blueMap
+        let contrastRGBAImage = targetRGBAImage
         for y in 0..<height {
             for x in 0..<width {
                 let index = y*width+x
@@ -112,32 +115,29 @@ class Filters: ImageProcessor {
                 contrastRGBAImage.pixels[index].green = newGreen
             }
         }
-        return contrastRGBAImage.toUIImage()!
+        return ImageProcessor(targetUIImage: contrastRGBAImage.toUIImage()!)
     }
 }
-
-let contrastUIImage10 = Filters(filename: "sample").contrastFilter(strengthFrom0To10: 10.0)
-let contrastUIImage05 = Filters(filename: "sample").contrastFilter(strengthFrom0To10: 5)
-
-
-
-/*
-func evilImage(myUIImage: UIImage) -> UIImage {
-    let myImage = RGBAImage(image: myUIImage)!
-    for y in 0..<myImage.height {
-        for x in 0..<myImage.width {
-            let pixelIndex = y * myImage.width + x
-            var currentPixel = myImage.pixels[pixelIndex]
-            let pixelGreen = currentPixel.green
-            let evilPixel = UInt8((1-exp(-Double(pixelGreen)/255.0*3))*256.0)
-            currentPixel.green = evilPixel
-            myImage.pixels[pixelIndex] = currentPixel
+extension ImageProcessor {
+    func brightnessFilter(strengthFrom0To10 strength: Double) -> ImageProcessor {
+        let redMap = self.redMap
+        let greenMap = self.greenMap
+        let blueMap = self.blueMap
+        let brightnessRGBAImage = targetRGBAImage
+        for y in 0..<height {
+            for x in 0..<width {
+                let index = y*width+x
+                let newRed = UInt8(min(255, max(0, strength*Double(redMap[index])/5)))
+                let newblue = UInt8(min(255, max(0, strength*Double(blueMap[index])/5)))
+                let newgreen = UInt8(min(255, max(0, strength*Double(greenMap[index])/5)))
+                brightnessRGBAImage.pixels[index].red = newRed
+                brightnessRGBAImage.pixels[index].blue = newblue
+                brightnessRGBAImage.pixels[index].green = newgreen
+            }
         }
+        return ImageProcessor(targetUIImage: brightnessRGBAImage.toUIImage()!)
     }
-    return myImage.toUIImage()!
 }
 
-let aEvilImage = evilImage(image)
- */
-
-
+//let filteredImage = ImageProcessor(targetUIImage: image).contrastFilter(strengthFrom0To10: 2).contrastFilter(strengthFrom0To10: 3)
+let brightessImage = ImageProcessor().brightnessFilter(strengthFrom0To10: 10).contrastFilter(strengthFrom0To10: 10)
